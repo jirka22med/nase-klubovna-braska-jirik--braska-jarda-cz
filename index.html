@@ -33,7 +33,7 @@
           <h1 class="login-title">J & J<br>MESSENGER</h1>
           <div class="login-subtitle">KOMUNIKAČNÍ SYSTÉM — PŘÍSTUP OMEZEN</div>
           <div class="login-divider"></div>
-          <p class="login-info">Tento systém je přístupný pouze<br>oprávněným členům pouze povolení uživatelé mohou vstoupyt.</p>
+          <p class="login-info">Tento systém je přístupný pouze<br>oprávněným členům posádky.</p>
           <button class="btn-login" id="btnPrihlasit">
             <span class="btn-icon">G</span>
             PŘIHLÁSIT SE PŘES GOOGLE
@@ -49,6 +49,43 @@
   </div>
 
   <!-- ╔══════════════════════════════════════════════╗ -->
+  <!-- ║  DRUHÁ VRSTVA — HESLO                        ║ -->
+  <!-- ╚══════════════════════════════════════════════╝ -->
+  <div id="auth2Screen" style="display:none">
+    <div class="auth2-wrapper">
+      <div class="auth2-left-bar"></div>
+      <div class="auth2-panel">
+        <div class="auth2-top-bar"></div>
+        <div class="auth2-content">
+          <div class="auth2-badge">HVĚZDNÁ FLOTILA — BEZPEČNOSTNÍ PROTOKOL</div>
+          <div class="auth2-icon">🔐</div>
+          <h2 class="auth2-title">DRUHÁ VRSTVA<br>PŘÍSTUPU</h2>
+          <div class="auth2-subtitle">ZADEJ PŘÍSTUPOVÝ KÓD VELITELSKÉHO MŮSTKU</div>
+          <div class="auth2-divider"></div>
+          <div class="auth2-user-info" id="auth2UserInfo"></div>
+          <div class="auth2-input-row">
+            <input type="password" id="auth2Input" class="lcars-input auth2-input"
+                   placeholder="Přístupový kód..."
+                   autocomplete="off" spellcheck="false">
+            <button class="auth2-show-btn" id="auth2ShowBtn" title="Zobrazit/skrýt">👁</button>
+          </div>
+          <button class="btn-login btn-auth2" id="btnAuth2Potvrdit">
+            OVĚŘIT PŘÍSTUPOVÝ KÓD
+          </button>
+          <div class="auth2-error" id="auth2Error"></div>
+          <button class="auth2-odhlasit-btn" id="auth2Odhlasit">
+            ← Odhlásit se a zvolit jiný účet
+          </button>
+        </div>
+        <div class="auth2-bottom-bar">
+          <span>PROTOKOL DELTA-7</span>
+          <span>PŘÍSTUP CHRÁNĚN SHA-256</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ╔══════════════════════════════════════════════╗ -->
   <!-- ║  HLAVNÍ APLIKACE                             ║ -->
   <!-- ╚══════════════════════════════════════════════╝ -->
   <div id="appContainer" style="display:none">
@@ -56,10 +93,10 @@
     <!-- LCARS HEADER -->
     <header class="lcars-header">
       <div class="header-left">
-        
+        <div class="header-curve-block"></div>
         <div class="header-bars">
-          
-          
+          <div class="header-bar-top"></div>
+          <div class="header-bar-bottom"></div>
         </div>
       </div>
       <div class="header-title">
@@ -68,7 +105,7 @@
       </div>
       <div class="header-user" id="headerUserInfo"></div>
       <button class="btn-odhlasit" id="btnOdhlasit">ODHLÁSIT</button>
-      
+      <div class="header-right-cap"></div>
     </header>
 
     <!-- HLAVNÍ TĚLO -->
