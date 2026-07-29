@@ -67,8 +67,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (prvniKontrola) {
       document.getElementById("loadingScreen").style.display = "none";
       prvniKontrola = false;
-    }
+   }
   });
+});
 
 // ════════════════════════════════════════════════════
 //  PŘIHLAŠOVÁNÍ TLAČÍTKA
