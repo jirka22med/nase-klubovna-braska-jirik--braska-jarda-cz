@@ -2,6 +2,7 @@
 // OPRAVA: odstraněn redirect handling, popup funguje přímo
 
 import { prihlasitGooglem, odhlasit, sledovatPrihlaseni } from './auth.js';
+import { overitHeslo, getBlokaceInfo } from './auth2.js';
 import {
   odesilatTextZpravu,
   odesilatObrazekZpravu,
