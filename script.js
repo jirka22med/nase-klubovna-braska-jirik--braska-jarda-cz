@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   let prvniKontrola = true;
 
-  // Sledovat stav přihlášení
+ // Sledovat stav přihlášení
   sledovatPrihlaseni(async (user) => {
     if (user) {
       aktualniUser = user;
@@ -55,9 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
       
       // ZMĚNA: Tady už nepouštíme do chatu (zobrazitApp), ale na heslo!
       zobrazitAuth2Screen(user); 
-      
-      // POZOR: spustitListenery() se odsud smazalo, protože chat 
-      // načteme až po zadání hesla!
     } else {
       aktualniUser = null;
       odpojitChat();
@@ -68,9 +65,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (prvniKontrola) {
       document.getElementById("loadingScreen").style.display = "none";
       prvniKontrola = false;
-   }
-  });
-});
+    }
+  }); // <--- ZÁVĚR FUNKCE sledovatPrihlaseni
+}); // <--- ZÁVĚR FUNKCE DOMContentLoaded (TOHLE NESMÍ CHYBĚT!)
 
 // ════════════════════════════════════════════════════
 //  PŘIHLAŠOVÁNÍ TLAČÍTKA
