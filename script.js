@@ -42,7 +42,8 @@ document.addEventListener("DOMContentLoaded", () => {
   chatButtony();
   galerieButtony();
   prihlasovaniButtony();
-
+  auth2Buttony(); // <--- TADY MUSÍ BÝT ZAVOLÁNA NOVÁ FUNKCE
+  
   let prvniKontrola = true;
 
   // Sledovat stav přihlášení
