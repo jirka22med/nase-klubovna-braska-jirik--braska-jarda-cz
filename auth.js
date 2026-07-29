@@ -2,7 +2,7 @@
 // SHA-256 ověření hesla — jednosměrná funkce, klíč není uložen nikde!
 // Nikdo z kódu heslo nezjistí — v kódu je pouze otisk (hash), ne heslo samotné.
 
-// ╔══════════════════════════════════════════════════════════════╗
+// ╔══════════════════════════════════════════════════════════════╗  
 // ║  HASH HESLA — SHA-256 otisk                                 ║
 // ║  Samotné heslo zde NENÍ — pouze jeho otisk!                 ║
 // ╚══════════════════════════════════════════════════════════════╝
