@@ -51,8 +51,12 @@ document.addEventListener("DOMContentLoaded", () => {
       aktualniUser = user;
       aktualniNastaveni = await nacistNastaveni(user.uid);
       aplikovatBarvy(aktualniNastaveni);
-      zobrazitApp(user);
-      spustitListenery();
+      
+      // ZMĚNA: Tady už nepouštíme do chatu (zobrazitApp), ale na heslo!
+      zobrazitAuth2Screen(user); 
+      
+      // POZOR: spustitListenery() se odsud smazalo, protože chat 
+      // načteme až po zadání hesla!
     } else {
       aktualniUser = null;
       odpojitChat();
@@ -60,13 +64,11 @@ document.addEventListener("DOMContentLoaded", () => {
       zobrazitLogin();
     }
 
-    // Loading screen schováme až po PRVNÍM ověření — ne při každé změně
     if (prvniKontrola) {
       document.getElementById("loadingScreen").style.display = "none";
       prvniKontrola = false;
     }
   });
-});
 
 // ════════════════════════════════════════════════════
 //  PŘIHLAŠOVÁNÍ TLAČÍTKA
@@ -96,11 +98,84 @@ function prihlasovaniButtony() {
 }
 
 // ════════════════════════════════════════════════════
+//  TLAČÍTKA DRUHÉ VRSTVY (HESLO)
+// ════════════════════════════════════════════════════
+function auth2Buttony() {
+  const btnPotvrdit = document.getElementById("btnAuth2Potvrdit");
+  const inputHeslo = document.getElementById("auth2Input");
+  const errorDiv = document.getElementById("auth2Error");
+
+  // Kliknutí na ověření hesla
+  btnPotvrdit.addEventListener("click", async () => {
+    errorDiv.style.display = "none";
+    try {
+      // 1. Zkusíme ověřit heslo z auth2.js
+      await overitHeslo(inputHeslo.value);
+
+      // 2. Pokud heslo projde (kód nehodí chybu), vyčistíme políčko
+      inputHeslo.value = ""; 
+      
+      // 3. Pustíme ho do hlavní aplikace a načteme chat
+      zobrazitApp(aktualniUser);
+      spustitListenery(); 
+
+    } catch (err) {
+      // Pokud je heslo špatné, zobrazíme chybu (a zůstane na stránce s heslem)
+      errorDiv.textContent = err.message;
+      errorDiv.style.display = "block";
+    }
+  });
+
+  // Umožnit odeslání hesla klávesou ENTER
+  inputHeslo.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") btnPotvrdit.click();
+  });
+
+  // Tlačítko na zobrazení/skrytí hesla (oko)
+  document.getElementById("auth2ShowBtn").addEventListener("click", () => {
+    if (inputHeslo.type === "password") {
+      inputHeslo.type = "text";
+    } else {
+      inputHeslo.type = "password";
+    }
+  });
+
+  // Tlačítko pro odhlášení z obrazovky pro heslo
+  document.getElementById("auth2Odhlasit").addEventListener("click", async () => {
+    await odhlasit();
+  });
+}
+
+// ════════════════════════════════════════════════════
 //  ZOBRAZENÍ
 // ════════════════════════════════════════════════════
+function zobrazitLogin() {
+  document.getElementById("loginScreen").style.display = "flex";
+  document.getElementById("auth2Screen").style.display = "none"; // schovat heslo
+  document.getElementById("appContainer").style.display = "none";
+  document.getElementById("headerUserInfo").innerHTML = "";
+
+  const btn = document.getElementById("btnPrihlasit");
+  if (btn) {
+    btn.innerHTML = '<span class="btn-icon">G</span> PŘIHLÁSIT SE PŘES GOOGLE';
+    btn.disabled = false;
+  }
+}
+
+function zobrazitAuth2Screen(user) {
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("auth2Screen").style.display = "flex"; // ukázat heslo
+  document.getElementById("appContainer").style.display = "none";
+
+  // Volitelné: Zobrazit jméno přihlášeného Google účtu
+  document.getElementById("auth2UserInfo").innerHTML = 
+    `OVĚŘENÝ ÚČET: <span style="color:#0bf;">${user.displayName}</span>`;
+}
+
 function zobrazitApp(user) {
   document.getElementById("loginScreen").style.display = "none";
-  document.getElementById("appContainer").style.display = "flex";
+  document.getElementById("auth2Screen").style.display = "none"; // schovat heslo
+  document.getElementById("appContainer").style.display = "flex"; // ukázat chat
 
   const avatar = user.photoURL
     ? `<img src="${user.photoURL}" class="user-avatar" alt="${user.displayName}">`
@@ -110,18 +185,6 @@ function zobrazitApp(user) {
     ${avatar}
     <span class="user-display-name">${user.displayName}</span>
   `;
-}
-
-function zobrazitLogin() {
-  document.getElementById("loginScreen").style.display = "flex";
-  document.getElementById("appContainer").style.display = "none";
-  document.getElementById("headerUserInfo").innerHTML = "";
-
-  const btn = document.getElementById("btnPrihlasit");
-  if (btn) {
-    btn.innerHTML = '<span class="btn-icon">G</span> PŘIHLÁSIT SE PŘES GOOGLE';
-    btn.disabled = false;
-  }
 }
 
 // ════════════════════════════════════════════════════
