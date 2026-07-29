@@ -148,9 +148,24 @@ function auth2Buttony() {
 // ════════════════════════════════════════════════════
 //  ZOBRAZENÍ
 // ════════════════════════════════════════════════════
+function zobrazitApp(user) {
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("auth2Screen").style.display = "none";
+  document.getElementById("appContainer").style.display = "flex";
+
+  const avatar = user.photoURL
+    ? `<img src="${user.photoURL}" class="user-avatar" alt="${user.displayName}">`
+    : `<div class="user-avatar-placeholder">${user.displayName.charAt(0)}</div>`;
+
+  document.getElementById("headerUserInfo").innerHTML = `
+    ${avatar}
+    <span class="user-display-name">${user.displayName}</span>
+  `;
+}
+
 function zobrazitLogin() {
   document.getElementById("loginScreen").style.display = "flex";
-  document.getElementById("auth2Screen").style.display = "none"; // schovat heslo
+  document.getElementById("auth2Screen").style.display = "none";
   document.getElementById("appContainer").style.display = "none";
   document.getElementById("headerUserInfo").innerHTML = "";
 
@@ -163,27 +178,13 @@ function zobrazitLogin() {
 
 function zobrazitAuth2Screen(user) {
   document.getElementById("loginScreen").style.display = "none";
-  document.getElementById("auth2Screen").style.display = "flex"; // ukázat heslo
+  document.getElementById("auth2Screen").style.display = "flex"; 
   document.getElementById("appContainer").style.display = "none";
 
-  // Volitelné: Zobrazit jméno přihlášeného Google účtu
-  document.getElementById("auth2UserInfo").innerHTML = 
-    `OVĚŘENÝ ÚČET: <span style="color:#0bf;">${user.displayName}</span>`;
-}
-
-function zobrazitApp(user) {
-  document.getElementById("loginScreen").style.display = "none";
-  document.getElementById("auth2Screen").style.display = "none"; // schovat heslo
-  document.getElementById("appContainer").style.display = "flex"; // ukázat chat
-
-  const avatar = user.photoURL
-    ? `<img src="${user.photoURL}" class="user-avatar" alt="${user.displayName}">`
-    : `<div class="user-avatar-placeholder">${user.displayName.charAt(0)}</div>`;
-
-  document.getElementById("headerUserInfo").innerHTML = `
-    ${avatar}
-    <span class="user-display-name">${user.displayName}</span>
-  `;
+  const userInfoEl = document.getElementById("auth2UserInfo");
+  if(userInfoEl) {
+    userInfoEl.innerHTML = `OVĚŘENÝ ÚČET: <span style="color:#0bf;">${user.displayName}</span>`;
+  }
 }
 
 // ════════════════════════════════════════════════════
