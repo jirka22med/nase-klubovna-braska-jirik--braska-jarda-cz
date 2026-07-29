@@ -1,71 +1,75 @@
-// auth2.js — LCARS Messenger | Druhá vrstva přístupu
-// SHA-256 ověření hesla — jednosměrná funkce, klíč není uložen nikde!
-// Nikdo z kódu heslo nezjistí — v kódu je pouze otisk (hash), ne heslo samotné.
+// auth.js — LCARS Messenger | Google přihlášení + whitelist
+// OPRAVA v2: signInWithPopup místo Redirect — spolehlivější na GitHub Pages!
 
-// ╔══════════════════════════════════════════════════════════════╗  
-// ║  HASH HESLA — SHA-256 otisk                                 ║
-// ║  Samotné heslo zde NENÍ — pouze jeho otisk!                 ║
-// ╚══════════════════════════════════════════════════════════════╝
-const HASH_HESLA = "98e33a569ea41213abbafb7c86f04af63f3e243ecf440dc0e2a027bf2581cb63";
+import { auth, db } from './firebase-config.js';
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  doc,
+  setDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// Kolik pokusů než se uživatel zablokuje
-const MAX_POKUSU = 5;
-const BLOKACE_MS = 5 * 60 * 1000; // 5 minut
+// Explicitní LOCAL persistence — session přežije zavření okna i F5.
+// Bez tohoto kroku mohou prohlížeče jako Brave (Shields) session ztrácet.
+setPersistence(auth, browserLocalPersistence).catch((err) => {
+  console.warn("Persistence se nepodařilo nastavit:", err.message);
+});
 
-// Počítadlo pokusů v paměti (resetuje se při reload)
-let pocetPokusu = 0;
-let zablokovanDo = null;
+// ╔══════════════════════════════════════════════════╗
+// ║  WHITELIST — povolení uživatelé                  ║
+// ║  Přidej Jardův email až ho budeš mít!            ║
+// ╚══════════════════════════════════════════════════╝
+const POVOLENI_UZIVATELE = [
+  "jirkamed66@gmail.com",
+  "jakesjardajak@gmail.com"    // ← ⚠️ DOPLNIT!
+];
 
-// ════════════════════════════════════════════════════════════════
-//  HLAVNÍ FUNKCE — ověřit zadané heslo
-// ════════════════════════════════════════════════════════════════
-export async function overitHeslo(heslo) {
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ prompt: "select_account" });
 
-  // Blokace po MAX_POKUSU neúspěšných pokusech
-  if (zablokovanDo && Date.now() < zablokovanDo) {
-    const zbyva = Math.ceil((zablokovanDo - Date.now()) / 1000);
-    throw new Error(`PŘÍSTUP BLOKOVÁN — zkus to za ${zbyva}s`);
+// Přihlásit přes Google popup
+export async function prihlasitGooglem() {
+  const result = await signInWithPopup(auth, provider);
+  const user = result.user;
+
+  // Kontrola whitelistu
+  if (!POVOLENI_UZIVATELE.includes(user.email)) {
+    await signOut(auth);
+    throw new Error(`Přístup odepřen: ${user.email} není v seznamu posádky!`);
   }
 
-  if (!heslo || heslo.trim() === "") {
-    throw new Error("Heslo nesmí být prázdné!");
-  }
+  // Uložit profil do Firestore
+  await setDoc(doc(db, "users", user.uid), {
+    email:       user.email,
+    displayName: user.displayName,
+    photoURL:    user.photoURL,
+    lastSeen:    serverTimestamp()
+  }, { merge: true });
 
-  // Zahashovat vstup přes nativní Web Crypto API (SHA-256)
-  const hash = await sha256hex(heslo.trim());
-
-  if (hash === HASH_HESLA) {
-    // Správné heslo — reset počítadla
-    pocetPokusu = 0;
-    zablokovanDo = null;
-    return true;
-  }
-
-  // Špatné heslo — increment + možná blokace
-  pocetPokusu++;
-  if (pocetPokusu >= MAX_POKUSU) {
-    zablokovanDo = Date.now() + BLOKACE_MS;
-    pocetPokusu = 0;
-    throw new Error(`Příliš mnoho pokusů — přístup blokován na 5 minut!`);
-  }
-
-  const zbyva = MAX_POKUSU - pocetPokusu;
-  throw new Error(`Nesprávné heslo — zbývá ${zbyva} pokus${zbyva === 1 ? "" : "ů"}`);
+  return user;
 }
 
-// ════════════════════════════════════════════════════════════════
-//  SHA-256 → hex string (nativní Web Crypto, žádná knihovna)
-// ════════════════════════════════════════════════════════════════
-async function sha256hex(text) {
-  const encoder  = new TextEncoder();
-  const data     = encoder.encode(text);
-  const hashBuf  = await crypto.subtle.digest("SHA-256", data);
-  const hashArr  = Array.from(new Uint8Array(hashBuf));
-  return hashArr.map(b => b.toString(16).padStart(2, "0")).join("");
+// Odhlásit
+export async function odhlasit() {
+  await signOut(auth);
 }
 
-// Export stavu blokace pro UI (aby mohlo zobrazit odpočet)
-export function getBlokaceInfo() {
-  if (!zablokovanDo || Date.now() >= zablokovanDo) return null;
-  return Math.ceil((zablokovanDo - Date.now()) / 1000);
+// Sledovat stav přihlášení (listener — volá se při každé změně)
+export function sledovatPrihlaseni(callback) {
+  return onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      // Aktualizovat lastSeen
+      await setDoc(doc(db, "users", user.uid), {
+        lastSeen: serverTimestamp()
+      }, { merge: true });
+    }
+    callback(user);
+  });
 }
