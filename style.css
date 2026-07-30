@@ -2163,6 +2163,14 @@ body {
   display: flex; gap: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.6);
 }*/
 
+.msg-footer-row {
+  display: flex; align-items: center;
+  gap: 6px; justify-content: flex-end; margin-top: 4px;
+  
+  /* PŘIDÁNO: Zajišťuje, že se menu ukotví přesně k této zprávě */
+  position: relative; 
+}
+
 .emoji-picker-menu {
   background: var(--lcars-panel);
   border: 1px solid var(--lcars-primary);
@@ -2172,9 +2180,12 @@ body {
   gap: 6px; 
   box-shadow: 0 4px 20px rgba(0,0,0,0.6);
   
-  /* PŘIDANÉ PARAMETRY PRO VELITELSKÝ POSUN */
-  transform: translateX(-50px); /* Záporná hodnota posouvá menu doleva */
-  position: relative; /* Zajišťuje, že posun nebude ignorován prohlížečem */
+  /* NOVÁ DYNAMICKÁ LOKALIZACE */
+  position: absolute;
+  bottom: 100%; /* Vystřelí menu nahoru nad zprávu (nad tlačítka) */
+  right: 0; /* ZARAZÍ menu o pravý okraj zprávy */
+  margin-bottom: 5px; /* Drobná mezera, aby menu nebylo nalepené přímo na textu */
+  z-index: 1000; /* Překryje všechno ostatní na obrazovce */
 }
 
 .emoji-pick-btn {
