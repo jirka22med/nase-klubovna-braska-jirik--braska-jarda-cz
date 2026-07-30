@@ -58,6 +58,7 @@ export function sledovatOnlineStatus(aktualniUserId, callback) {
 
       const data = docSnap.data();
       callback({
+        uid:         docSnap.id,
         isOnline:    data.isOnline   ?? false,
         lastSeen:    data.lastSeen   ?? null,
         displayName: data.displayName ?? "Posádka"
