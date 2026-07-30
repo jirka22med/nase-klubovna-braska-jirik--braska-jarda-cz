@@ -3,6 +3,7 @@
 
 import { prihlasitGooglem, odhlasit, sledovatPrihlaseni } from './auth.js';
 import { overitHeslo, getBlokaceInfo } from './auth2.js';
+import { inicializovatNotifikace, getNotifikaceStatus } from './notifications.js';
 import {
   odesilatTextZpravu,
   odesilatObrazekZpravu,
