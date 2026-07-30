@@ -28,10 +28,22 @@ import {
   ziskatHodnotyZFormulare,
   VYCHOZI_NASTAVENI
 } from './settings.js';
+import {
+  nastavitOnline,
+  nastavitOffline,
+  sledovatOnlineStatus,
+  registrovatOfflineHandlery,
+  oznacitZpravyJakoPrectene,
+  getReadStatus,
+  prepnoutReakci,
+  vykresitReakce,
+  toggleEmojiPicker
+} from './presence.js';
 
 // Globální stav
 let aktualniUser      = null;
 let aktualniNastaveni = { ...VYCHOZI_NASTAVENI };
+let druhyUserId       = null; // UID Jardy — zjistí se ze sledovatOnlineStatus
 
 // ════════════════════════════════════════════════════
 //  INICIALIZACE
@@ -161,9 +173,30 @@ function zobrazitApp(user) {
     ${avatar}
     <span class="user-display-name">${user.displayName}</span>
   `;
+
+  // Online status — nastavit sebe jako online + sledovat druhého
+  nastavitOnline(user.uid);
+  registrovatOfflineHandlery(user.uid);
+
+  sledovatOnlineStatus(user.uid, (stav) => {
+    if (stav.uid) druhyUserId = stav.uid;
+    const el = document.getElementById("druhyOnlineStatus");
+    if (!el) return;
+    if (stav.isOnline) {
+      el.textContent = `● ${stav.displayName} ONLINE`;
+      el.style.color = "var(--lcars-green)";
+    } else {
+      const cas = stav.lastSeen ? formatovatCas(stav.lastSeen) : "—";
+      el.textContent = `○ ${stav.displayName} — naposled viděn ${cas}`;
+      el.style.color = "rgba(255,255,255,0.4)";
+    }
+  });
 }
 
 function zobrazitLogin() {
+  // Nastavit offline před odhlášením
+  if (aktualniUser) nastavitOffline(aktualniUser.uid);
+
   document.getElementById("loginScreen").style.display = "flex";
   document.getElementById("auth2Screen").style.display = "none";
   document.getElementById("appContainer").style.display = "none";
@@ -348,19 +381,38 @@ function vykresitZpravy(zpravy) {
                onerror="this.outerHTML='<div class=\\"msg-broken\\">[Nedostupný obrázek]</div>'">`
       : `<div class="msg-text">${escHtml(z.text || "")}</div>`;
 
+    const readStatus = jaMohu
+      ? getReadStatus(z, aktualniUser?.uid, druhyUserId)
+      : "";
+
     return `${oddelovac}
       <div class="message ${jaMohu ? "moje" : "cizi"}">
         <div class="msg-avatar" title="${escHtml(z.senderName)}">${initial}</div>
         <div class="msg-bubble">
           <div class="msg-sender">${escHtml(z.senderName)}</div>
           ${bubble}
-          <div class="msg-cas">${cas}</div>
+          <div class="msg-footer-row">
+            <div class="msg-reactions" id="reactions-${z.id}"></div>
+            <button class="btn-emoji-reakce"
+                    onclick="event.stopPropagation(); window.__togglePicker('${z.id}', this)"
+                    title="Přidat reakci">😊</button>
+            <div class="msg-cas">${cas}</div>
+            ${readStatus ? `<div class="msg-read-status">${readStatus}</div>` : ""}
+          </div>
         </div>
       </div>`;
   }).join("");
 
   container.innerHTML = html;
   if (byloNaDne) container.scrollTop = container.scrollHeight;
+
+  // Označit cizí zprávy jako přečtené
+  oznacitZpravyJakoPrectene(aktualniUser.uid);
+
+  // Vykreslit emoji reakce pod každou zprávou
+  zpravy.forEach(z => {
+    if (z.reactions) vykresitReakce(z.id, z.reactions, aktualniUser.uid);
+  });
 }
 
 function jeDole(el) {
@@ -404,6 +456,10 @@ window.__otevritModal  = (url, popis, autor) => otevritModal(url, popis, autor);
 window.__smazatGalerie = async (id) => {
   if (confirm("Smazat obrázek z galerie?")) await smazatZGalerie(id);
 };
+window.__prepnoutReakci = (messageId, emoji) =>
+  prepnoutReakci(messageId, aktualniUser.uid, emoji);
+window.__togglePicker   = (messageId, el) =>
+  toggleEmojiPicker(messageId, el);
 
 // ════════════════════════════════════════════════════
 //  HELPER
