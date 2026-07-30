@@ -2156,12 +2156,27 @@ body {
   padding: 0 2px;
 }
 .btn-emoji-reakce:hover { opacity: 1; }
-.emoji-picker-menu {
+/*.emoji-picker-menu {
   background: var(--lcars-panel);
   border: 1px solid var(--lcars-primary);
   border-radius: 10px; padding: 8px 10px;
   display: flex; gap: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+}*/
+
+.emoji-picker-menu {
+  background: var(--lcars-panel);
+  border: 1px solid var(--lcars-primary);
+  border-radius: 10px; 
+  padding: 8px 10px;
+  display: flex; 
+  gap: 6px; 
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  
+  /* PŘIDANÉ PARAMETRY PRO VELITELSKÝ POSUN */
+  transform: translateX(-50px); /* Záporná hodnota posouvá menu doleva */
+  position: relative; /* Zajišťuje, že posun nebude ignorován prohlížečem */
 }
+
 .emoji-pick-btn {
   background: none; border: none; font-size: 22px;
   cursor: pointer; padding: 4px; border-radius: 6px;
