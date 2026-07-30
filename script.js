@@ -178,7 +178,9 @@ function zobrazitApp(user) {
   // Online status — nastavit sebe jako online + sledovat druhého
   nastavitOnline(user.uid);
   registrovatOfflineHandlery(user.uid);
-
+  // Inicializovat notifikace (požádá o povolení poprvé)
+inicializovatNotifikace(user.uid);
+  
   sledovatOnlineStatus(user.uid, (stav) => {
     if (stav.uid) druhyUserId = stav.uid;
     const el = document.getElementById("druhyOnlineStatus");
