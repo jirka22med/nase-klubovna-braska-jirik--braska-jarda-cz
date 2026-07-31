@@ -40,11 +40,23 @@ import {
   vykresitReakce,
   toggleEmojiPicker
 } from './presence.js';
+import {
+  ulozitMojuPrezdivku,
+  ulozitPrezdivkuPraDruheho,
+  sledovatPrezdivky,
+  sledovatDruhehoUzivatele,
+  ziskatZobrazeneJmeno,
+  vykresliNicknamePanel,
+  nacistVsechnyUzivatele
+} from './nicknames.js';
 
 // Globální stav
 let aktualniUser      = null;
 let aktualniNastaveni = { ...VYCHOZI_NASTAVENI };
-let druhyUserId       = null; // UID Jardy — zjistí se ze sledovatOnlineStatus
+let druhyUserId       = null;  // UID Jardy — zjistí se ze sledovatOnlineStatus
+let mojeNicknames     = {};    // jak já vidím druhé
+let mojuPrezdivku     = "";    // jak mě vidí druhý
+let druhyUserData     = {};    // data druhého uživatele (jeho myNickname atd.)
 
 // ════════════════════════════════════════════════════
 //  INICIALIZACE
@@ -181,8 +193,25 @@ function zobrazitApp(user) {
   // Inicializovat notifikace (požádá o povolení poprvé)
 inicializovatNotifikace(user.uid);
   
+  // Sledovat vlastní přezdívky realtime
+  sledovatPrezdivky(user.uid, (data) => {
+    mojeNicknames = data.nicknames;
+    mojuPrezdivku = data.myNickname;
+  });
+
+  let druhyDataListenerSpusten = false;
+
   sledovatOnlineStatus(user.uid, (stav) => {
-    if (stav.uid) druhyUserId = stav.uid;
+    if (stav.uid) {
+      druhyUserId = stav.uid;
+      // Spustit listener na data druhého jen jednou (při prvním získání jeho UID)
+      if (!druhyDataListenerSpusten) {
+        druhyDataListenerSpusten = true;
+        sledovatDruhehoUzivatele(stav.uid, (data) => {
+          druhyUserData = data;
+        });
+      }
+    }
     const el = document.getElementById("druhyOnlineStatus");
     if (!el) return;
     if (stav.isOnline) {
@@ -243,6 +272,19 @@ function prepinatSekci(sekce) {
   if (sekce === "nastaveni" && aktualniUser) {
     vykresitNastaveni(aktualniNastaveni, document.getElementById("settingsPanel"));
     nastavitSettingsButtony();
+  }
+
+  if (sekce === "nicknames" && aktualniUser) {
+    nacistVsechnyUzivatele().then(users => {
+      vykresliNicknamePanel(
+        document.getElementById("nicknamesPanel"),
+        users,
+        aktualniUser.uid,
+        mojeNicknames,
+        mojuPrezdivku,
+        druhyUserData
+      );
+    });
   }
 }
 
@@ -366,9 +408,10 @@ function vykresitZpravy(zpravy) {
 
   let prevDatum = null;
   const html = zpravy.map(z => {
-    const jaMohu  = z.senderId === aktualniUser?.uid;
-    const initial = (z.senderName || "?").charAt(0).toUpperCase();
-    const cas     = formatovatCas(z.timestamp);
+    const jaMohu         = z.senderId === aktualniUser?.uid;
+    const zobrazeneJmeno = ziskatZobrazeneJmeno(z.senderId, z.senderName, mojeNicknames, druhyUserData);
+    const initial        = zobrazeneJmeno.charAt(0).toUpperCase();
+    const cas            = formatovatCas(z.timestamp);
     const datum   = z.timestamp ? formatovatDatum(z.timestamp) : null;
     let oddelovac = "";
 
@@ -390,9 +433,9 @@ function vykresitZpravy(zpravy) {
 
     return `${oddelovac}
       <div class="message ${jaMohu ? "moje" : "cizi"}">
-        <div class="msg-avatar" title="${escHtml(z.senderName)}">${initial}</div>
+        <div class="msg-avatar" title="${escHtml(zobrazeneJmeno)}">${initial}</div>
         <div class="msg-bubble">
-          <div class="msg-sender">${escHtml(z.senderName)}</div>
+          <div class="msg-sender">${escHtml(zobrazeneJmeno)}</div>
           ${bubble}
           <div class="msg-footer-row">
             <div class="msg-reactions" id="reactions-${z.id}"></div>
@@ -463,6 +506,35 @@ window.__prepnoutReakci = (messageId, emoji) =>
   prepnoutReakci(messageId, aktualniUser.uid, emoji);
 window.__togglePicker   = (messageId, el) =>
   toggleEmojiPicker(messageId, el);
+
+// ════════════════════════════════════════════════════
+//  GLOBÁLNÍ FUNKCE — PŘEZDÍVKY
+// ════════════════════════════════════════════════════
+window.__ulozitMoji = async () => {
+  const input = document.getElementById("nick-moje");
+  const btn   = input?.nextElementSibling;
+  try {
+    await ulozitMojuPrezdivku(aktualniUser.uid, input?.value ?? "");
+    if (btn) { btn.textContent = "✓"; setTimeout(() => btn.textContent = "ULOŽIT", 2000); }
+  } catch (err) { alert(err.message); }
+};
+
+window.__smazatMoji = async () => {
+  await ulozitMojuPrezdivku(aktualniUser.uid, "");
+};
+
+window.__ulozitProDruheho = async (forUid) => {
+  const input = document.getElementById(`nick-other-${forUid}`);
+  const btn   = input?.nextElementSibling;
+  try {
+    await ulozitPrezdivkuPraDruheho(aktualniUser.uid, forUid, input?.value ?? "");
+    if (btn) { btn.textContent = "✓"; setTimeout(() => btn.textContent = "ULOŽIT", 2000); }
+  } catch (err) { alert(err.message); }
+};
+
+window.__smazatProDruheho = async (forUid) => {
+  await ulozitPrezdivkuPraDruheho(aktualniUser.uid, forUid, "");
+};
 
 // ════════════════════════════════════════════════════
 //  HELPER
