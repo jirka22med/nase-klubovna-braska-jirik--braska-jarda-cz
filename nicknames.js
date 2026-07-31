@@ -70,8 +70,9 @@ export function ziskatJmeno(nicknamesMapa, userId, skutecneJmeno) {
 //  aktualniUser = přihlášený uživatel (kdo edituje)
 // ════════════════════════════════════════════════════════════════
 export function vykresliNicknamePanel(container, users, nicknamesMapa, aktualniUser) {
-  // Zobrazit všechny kromě sebe — ale i sobě může nastavit přezdívku
-  const vsichni = users.filter(u => u.uid !== aktualniUser.uid);
+  // Zobrazit VŠECHNY uživatele včetně sebe — stejně jako Messenger
+  // Jiřík vidí: [svoje pole] + [Jardovo pole]
+  const vsichni = users;
 
   if (!vsichni.length) {
     container.innerHTML = `
@@ -91,24 +92,30 @@ export function vykresliNicknamePanel(container, users, nicknamesMapa, aktualniU
       const zaznam          = nicknamesMapa?.[u.uid];
       const aktualniHodnota = zaznam?.nickname ?? "";
       const ktoNastavil     = zaznam?.setByName ?? "";
+      const jeSam           = u.uid === aktualniUser.uid;
       const initial         = (u.displayName || "?").charAt(0).toUpperCase();
 
       return `
-        <div class="nickname-item">
+        <div class="nickname-item ${jeSam ? "nickname-item-self" : ""}">
           <div class="nickname-avatar">${initial}</div>
           <div class="nickname-info">
-            <div class="nickname-realname">${escHtml(u.displayName)}</div>
+            <div class="nickname-realname">
+              ${escHtml(u.displayName)}
+              ${jeSam ? '<span class="nickname-self-tag">— to jsi ty</span>' : ""}
+            </div>
             <div class="nickname-sub">
               ${aktualniHodnota
-                ? `přezdívka nastavena uživatelem: ${escHtml(ktoNastavil)}`
-                : "žádná přezdívka — zobrazuje se původní jméno"}
+                ? `přezdívka nastavena: ${escHtml(ktoNastavil)}`
+                : jeSam
+                  ? "nastav svojí přezdívku — Jarda ji uvidí v chatu"
+                  : "žádná přezdívka — zobrazuje se původní jméno"}
             </div>
           </div>
           <div class="nickname-input-group">
             <input type="text"
                    class="lcars-input nickname-input"
                    id="nick-input-${u.uid}"
-                   placeholder="Zadej přezdívku..."
+                   placeholder="${jeSam ? "Tvoje přezdívka..." : "Zadej přezdívku..."}"
                    maxlength="30"
                    value="${escHtml(aktualniHodnota)}">
             <button class="btn-nick-ulozit"
@@ -124,7 +131,7 @@ export function vykresliNicknamePanel(container, users, nicknamesMapa, aktualniU
           <div class="nickname-preview" id="nick-preview-${u.uid}">
             ${aktualniHodnota
               ? `Oba vidí: <strong>${escHtml(aktualniHodnota)}</strong>`
-              : `Oba vidí: <strong>${escHtml(u.displayName)}</strong>`}
+              : `<span style="opacity:0.3">— zatím nenastaveno —</span>`}
           </div>
         </div>`;
     }).join("")}
@@ -141,7 +148,7 @@ export function vykresliNicknamePanel(container, users, nicknamesMapa, aktualniU
       const val = input.value.trim();
       preview.innerHTML = val
         ? `Oba vidí: <strong>${escHtml(val)}</strong>`
-        : `Oba vidí: <strong>${escHtml(u.displayName)}</strong>`;
+        : `<span style="opacity:0.3">— zatím nenastaveno —</span>`;
     });
 
     input.addEventListener("keydown", (e) => {
