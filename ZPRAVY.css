@@ -1,0 +1,130 @@
+/* ═══════════════════════════════════════════════════════════════
+   ZPRÁVY
+═══════════════════════════════════════════════════════════════ */
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--lcars-primary) var(--lcars-dark);
+}
+
+.messages-container::-webkit-scrollbar { width: 4px; }
+.messages-container::-webkit-scrollbar-thumb { background: var(--lcars-primary); border-radius: 2px; }
+
+/* Oddělovač dnů */
+.date-separator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+}
+
+.date-separator::before,
+.date-separator::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 153, 0, 0.25);
+}
+
+.date-separator span {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--lcars-purple);
+}
+
+/* Zpráva */
+.message {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 72%;
+}
+
+.message.moje {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.message.cizi { align-self: flex-start; }
+
+.msg-avatar {
+  width: 30px; height: 30px; min-width: 30px;
+  background: var(--lcars-primary);
+  color: #000;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 12px; font-weight: 700;
+  flex-shrink: 0;
+}
+
+.message.cizi .msg-avatar { background: var(--lcars-purple); }
+
+.msg-bubble {
+  background: var(--msg-jina);
+  border: 1px solid rgba(153,153,204,0.4);
+  border-radius: 12px 12px 12px 3px;
+  padding: 9px 13px;
+  max-width: 100%;
+}
+
+.message.moje .msg-bubble {
+  background: var(--msg-moje);
+  border-color: rgba(255,153,0,0.4);
+  border-radius: 12px 12px 3px 12px;
+}
+
+.msg-sender {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--lcars-secondary);
+  margin-bottom: 5px;
+}
+
+.message.moje .msg-sender {
+  color: var(--lcars-text);
+  text-align: right;
+}
+
+.msg-text {
+  font-size: 14px;
+  color: rgba(255,255,255,0.9);
+  line-height: 1.55;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.msg-image {
+  max-width: 280px;
+  max-height: 220px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  border: 1px solid var(--lcars-primary);
+  display: block;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.msg-image:hover { transform: scale(1.02); opacity: 0.9; }
+
+.msg-broken {
+  color: var(--lcars-red);
+  font-size: 12px;
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 2px;
+  padding: 8px 0;
+}
+
+.msg-cas {
+  font-size: 9px;
+  color: rgba(255,255,255,0.35);
+  text-align: right;
+  margin-top: 5px;
+  font-family: 'Orbitron', sans-serif;
+}
