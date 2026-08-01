@@ -1,3 +1,5 @@
+const __settings_START = performance.now();
+
 // settings.js — LCARS Messenger | Nastavení barev přes Firestore
 // Žádný localStorage — vše v cloudu!
 
@@ -119,3 +121,7 @@ export function ziskatHodnotyZFormulare(polozky) {
   });
   return result;
 }
+
+
+// ⏱️ LOG END 
+    console.log(`%c🚀 [settings] Načteno za ${(performance.now() - __settings_START).toFixed(2)} ms`, 'background: #000; color: #00ff00; font-weight: bold; padding: 2px;');
