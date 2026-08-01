@@ -1,5 +1,5 @@
 // auth.js — LCARS Messenger | Google přihlášení + whitelist
-// OPRAVA v2: signInWithPopup místo Redirect — spolehlivější na GitHub Pages!
+// OPRAVA v2: signInWithPopup místo Redirect — spolehlivější na GitHub Pages! 
 
 import { auth, db } from './firebase-config.js';
 import {
