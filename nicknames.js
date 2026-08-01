@@ -1,3 +1,5 @@
+const __nicknames_START = performance.now();
+
 // nicknames.js — LCARS Messenger (Klubovna) | Sdílené přezdívky v2
 // Messenger-style — když Jiřík nastaví Jardovi přezdívku,
 // Jarda ji vidí u sebe v chatu taky. Obousměrné, sdílené pro oba!
@@ -184,3 +186,8 @@ function escHtml(text) {
   div.textContent = text;
   return div.innerHTML;
 }
+
+
+
+// ⏱️ LOG END 
+    console.log(`%c🚀 [nicknames] Načteno za ${(performance.now() - __nicknames_START).toFixed(2)} ms`, 'background: #000; color: #00ff00; font-weight: bold; padding: 2px;');
