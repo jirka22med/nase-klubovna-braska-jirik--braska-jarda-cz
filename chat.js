@@ -1,3 +1,6 @@
+const __chat_START = performance.now();
+
+
 // chat.js — LCARS Messenger | Chatovací logika
 // Realtime zprávy přes Firestore onSnapshot
 
@@ -99,3 +102,7 @@ export function formatovatDatum(timestamp) {
     month:   "long"
   });
 }
+
+
+// ⏱️ LOG END 
+    console.log(`%c🚀 [chat] Načteno za ${(performance.now() - __chat_START).toFixed(2)} ms`, 'background: #000; color: #00ff00; font-weight: bold; padding: 2px;');
