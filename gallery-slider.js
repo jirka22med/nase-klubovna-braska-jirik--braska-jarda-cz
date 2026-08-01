@@ -1,3 +1,6 @@
+const __gallery_slider_START = performance.now();
+
+
 // gallery-slider.js — LCARS Messenger (Klubovna)
 // Navigace šipkami v modálním okně galerie
 // Index 0 až (počet obrázků - 1) — bez zavírání okna!
@@ -178,3 +181,7 @@ function inicializovatSwipe(element) {
     else        prejitNa(aktualniIndex - 1);  // swipe doprava → předchozí
   }, { passive: true });
 }
+
+
+// ⏱️ LOG END 
+    console.log(`%c🚀 [gallery-slider] Načteno za ${(performance.now() - __gallery_slider_START).toFixed(2)} ms`, 'background: #000; color: #00ff00; font-weight: bold; padding: 2px;');
