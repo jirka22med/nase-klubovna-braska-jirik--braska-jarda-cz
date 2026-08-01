@@ -1,3 +1,6 @@
+const __firebase_messaging_sw_START = performance.now();
+
+
 // firebase-messaging-sw.js — Opravený Service Worker
 importScripts("https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js");
@@ -25,3 +28,8 @@ messaging.onBackgroundMessage((payload) => {
 
   self.registration.showNotification(notificationTitle, notificationOptions);
 });
+
+
+
+// ⏱️ LOG END 
+    console.log(`%c🚀 [firebase-messaging-sw] Načteno za ${(performance.now() - __firebase_messaging_sw_START).toFixed(2)} ms`, 'background: #000; color: #00ff00; font-weight: bold; padding: 2px;');
