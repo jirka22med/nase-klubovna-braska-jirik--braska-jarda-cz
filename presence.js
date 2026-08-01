@@ -1,3 +1,6 @@
+const __presence_START = performance.now();
+
+
 // presence.js — LCARS Messenger | Online status + Read receipts + Emoji reakce
 // Jeden modul pro tři funkce — žádné závislosti mimo Firebase
 
@@ -242,3 +245,8 @@ export function toggleEmojiPicker(messageId, triggerEl) {
     document.addEventListener("click", () => picker.remove(), { once: true });
   }, 50);
 }
+
+
+
+ // ⏱️ LOG END 
+    console.log(`%c🚀 [presence] Načteno za ${(performance.now() - __presence_START).toFixed(2)} ms`, 'background: #000; color: #00ff00; font-weight: bold; padding: 2px;');
