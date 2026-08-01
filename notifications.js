@@ -1,4 +1,3 @@
-
 const __notifications_START = performance.now();
 
 // notifications.js — LCARS Messenger | Web Push notifikace
@@ -42,7 +41,11 @@ export async function inicializovatNotifikace(userId) {
       return false;
     }
 
-    // Získat FCM token
+    // 🛑 TVRDÉ ZPOMALENÍ (RETARDÉR): Zastavíme tento modul natvrdo na 3 sekundy
+    // Čekáme, aby měl náklaďák (Service Worker) čas bezpečně zaparkovat na trati
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    // Získat FCM token (Ferrari šlape na pedál až po 3 sekundách)
     const token = await getToken(messaging, {
       vapidKey:        VAPID_KEY,
       serviceWorkerRegistration: reg
