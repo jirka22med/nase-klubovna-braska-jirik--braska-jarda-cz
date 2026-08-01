@@ -1,3 +1,6 @@
+const __auth2_START = performance.now();
+
+
 // auth2.js — LCARS Messenger | Druhá vrstva přístupu
 // SHA-256 ověření hesla — jednosměrná funkce, klíč není uložen nikde!
 // Nikdo z kódu heslo nezjistí — v kódu je pouze otisk (hash), ne heslo samotné.
@@ -69,3 +72,8 @@ export function getBlokaceInfo() {
   if (!zablokovanDo || Date.now() >= zablokovanDo) return null;
   return Math.ceil((zablokovanDo - Date.now()) / 1000);
 }
+
+
+
+// ⏱️ LOG END 
+    console.log(`%c🚀 [auth2] Načteno za ${(performance.now() - __auth2_START).toFixed(2)} ms`, 'background: #000; color: #00ff00; font-weight: bold; padding: 2px;');
