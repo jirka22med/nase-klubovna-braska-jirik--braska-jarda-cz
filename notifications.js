@@ -16,7 +16,7 @@ export async function inicializovatNotifikace(userId) {
   try {
     // Zaregistrovat Service Worker
     const reg = await navigator.serviceWorker.register(
-      "/firebase-messaging-sw.js"
+      "./firebase-messaging-sw.js"
     );
     console.log("SW zaregistrován:", reg.scope);
 
