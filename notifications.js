@@ -5,7 +5,7 @@ import { doc, setDoc, getDoc } from
 
 // Firebase Messaging — compat verze přes CDN
 // VAPID klíč — viz návod níže jak ho získat!
-const VAPID_KEY = "3d4e117b0f6717ae9f86ebb75cd5bf48448ed89f";
+const VAPID_KEY = "BEI90J-t1BYOOoRNJwutG9Ti4YpAFIWiOr6qpEASe5NR70A44KOQn_bBj7bPOFOPXlmTRnL1OTfOsm7jdNA1wqs";
 
 let messaging = null;
 
