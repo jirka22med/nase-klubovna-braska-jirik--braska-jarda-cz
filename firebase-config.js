@@ -1,3 +1,5 @@
+const __firebase_config_START = performance.now();
+
 // firebase-config.js — LCARS Messenger | Admirál Jiřík
 // Inicializace Firebase — základ všeho
 
@@ -20,3 +22,8 @@ const app = initializeApp(firebaseConfig);
 export const db  = getFirestore(app);
 export const auth = getAuth(app);
 export default app;
+
+
+
+// ⏱️ LOG END 
+    console.log(`%c🚀 [firebase-config] Načteno za ${(performance.now() - __firebase_config_START).toFixed(2)} ms`, 'background: #000; color: #00ff00; font-weight: bold; padding: 2px;');
