@@ -8,8 +8,8 @@ const _buildCounter = (() => {
     try {
         const key = 'uss_prometheus_build';
         // Načteme poslední uloženou hodnotu, fallback na 54 (navazujeme na tvoji historii)
-        const last = parseInt(localStorage.getItem(key) || '54', 10);
-        const next = isNaN(last) ? 55 : last + 1;
+        const last = parseInt(localStorage.getItem(key) || '0', 10);
+        const next = isNaN(last) ? 1 : last + 1;
         localStorage.setItem(key, next);
         return next;
     } catch (e) {
@@ -25,78 +25,55 @@ const FLEET_CONFIG = {
     buildNumber: _buildCounter,
 
     //=============toto se měnit nebude============
-    codename: "Prometheus-Class",
+    codename: "Klubovna",
 
     //=============toto se měnit nebude============
 
-    // SEZNAM VŠECH MODULŮ (Tady spravuješ odkazy)
+  // SEZNAM VŠECH MODULŮ PRO FLEET REGISTER
     modules: [
-        //HLAVNÍ KOSTRA STAR TREK HUDEBNÍHO PŘEHRAVAČE
+        // --- HLAVNÍ KOSTRA ---
         './index.html',
-        // --- CSS MODULY (POUZE AKTIVNÍ) ---
-        './style.css',
-        // ---HLAVNÍ CSS PRO MINI-PŘEHRAVAČ
-        './miniPlayer.css',
-        // ---HLAVNÍ CSS ČASOVAČ DEAKTIVOVÁNÍ HRAJÍCÍ HUDBY
-        './casovac.css',
-        // ---HLAVNÍ CSS PRO UKAZATEL CO JE TO ZA PROHLÍŽEČ
-        './browser-status.css',
-        // ---HLAVNÍ CSS PRO BOČNÍ POSUVNÍK OKNA PROHLÍŽEČE
-        './scrollbar.css',
-        // ---HLAVNÍ CSS VÁNOČNÍ EDICE STAR TREK HUDEBNÍHO PŘEHRAVAČE
-        './christmas.css',
-        // ---HLAVNÍ CSS NOVÍ PANEL HLASITOST ZE SPRÁVCE ROZHRANÍ .JS
-        './zobrazit-panel-hlasitosti.css',
 
-        './jirikovo-barveni-ui-tlacitek.css',
+        // --- CSS MODULY ---
+        './style.css',
+        './CSS-PROMENNE-prepisovany-z-Firestore.css',
+        './APP-BODY.css',
+        './APP-CONTAINER.css',
+        './MAIN-CONTENT-AREA.css',
+        './LCARS-HEADER.css',
+        './LCARS-NAVIGACE.css',
+        './LCARS-VSTUPY-A-TLACITKA.css',
+        './LOGIN-SCREEN.css',
+        './LOADING-SPLASH-SCREEN.css',
+        './LOADING-SCREEN-zobrazuje-se-nez-Firebase-overi-prihlaseni.css',
+        './DRUHA-VRSTVA-PRISTUPU-auth2Screen.css',
+        './ZPRAVY.css',
+        './CHAT-INPUT.css',
+        './galerie.css',
+        './gallery-slider.css',
+        './moldarni-okna.css',
+        './nastaveni.css',
+        './SCROLLBARY-GLOBALNE.css',
+        './zavinac-media-qstion.css',
 
         // --- NULTÉ POŘADÍ V POŘADÍ ---
         './fleet-register.js',
-        // --- Musí se načíst PŘED všemi Firebase moduly ---
-        'https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js',
-        'https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js',
-        // --- Musí být PŘED Firebase moduly, aby mohly logovat ---
-        './DebugManager.js',
-        // --- Inicializuje window.tracks, window.favorites, audio element ---
-        './script.js',
-        './audioFirebaseFunctions.js',
-        './playlistSync.js',
-        './pokrocila-sprava-playlistu.js',
-        './buttonVisibilityFirebase.js',
-        './jirikovo-barveni-ui-tlacitek-firebase.js',
-        // --- DEVÁTÝ V POŘADÍ ---
 
-        // --- DESÁTÝ V POŘADÍ ---
-        './myPlaylist.js',
-        // --- JEDENÁCTÝ V POŘADÍ ---
-        './backgroundManager.js',
-        // --- DVANÁCTÝ V POŘADÍ ---
-        './colorManager.js',
-        // --- TŘINÁCTÝ V POŘADÍ ---
-        './notificationFix.js',
-        // --- ČTRNÁCTÝ V POŘADÍ ---
-        './playlistSettings.js',
-        //Správa viditelnosti tlačítek
-        './buttonVisibilityManager.js',
-        //Automatické přechody mezi skladbami
-        './autoFade.js',
-        //Časovač
-        './timer-module.js',
-        //Vyhledávač skladeb
-        './vyhledavac-skladeb.js',
-        //Mini přehrávač (plovoucí okno)
-        './miniPlayer.js',
-        //Monitorovací nástroje - nejnižší priorita
-        './universalni-perfomens-monitor.js',
-        './bluetoothDisconnectMonitor.js',
-        //Finální úpravy UI - musí být po všech feature modulech
-        './sprava-rozhrani.js',
-        //boční posuvník na stránce
-        './scrollbar.js',
-        //lehká atomovka odpáli vše co jí stojí v cestě i borgy odpalit dokáže?
-        './lehka-atomovka.js',
-        './jirkuv-hlidac.js',
-        './jirikovo-barveni-ui-tlacitek.js',
+        // --- Musí se načíst PŘED všemi Firebase moduly ---
+        './firebase-config.js',
+        './firebase-messaging-sw.js',
+
+        // --- JAVASCRIPT MODULY ---
+        './script.js',
+        './auth.js',
+        './auth2.js',
+        './chat.js',
+        './nicknames.js',
+        './notifications.js',
+        './presence.js',
+        './settings.js',
+        './gallery.js',
+        './gallery-slider.js'
     ]
 };
 
