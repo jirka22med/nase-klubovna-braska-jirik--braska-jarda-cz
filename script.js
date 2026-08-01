@@ -48,6 +48,13 @@ import {
   vykresliNicknamePanel,
   nacistVsechnyUzivatele
 } from './nicknames.js';
+import {
+  inicializovatSlider,
+  aktualizovatSeznamObrazku,
+  otevritSlider,
+  otevritSliderPodleUrl,
+  zavritSlider
+} from './gallery-slider.js';
 
 // Globální stav
 let aktualniUser      = null;
@@ -60,6 +67,7 @@ let nicknamesMapa     = {};    // sdílená mapa přezdívek — vidí oba uživ
 // ════════════════════════════════════════════════════
 document.addEventListener("DOMContentLoaded", () => {
   inicializovatModal();
+  inicializovatSlider();
   navButtony();
   chatButtony();
   galerieButtony();
@@ -459,11 +467,14 @@ function vykresitGalerii(obrazky) {
     return;
   }
 
-  grid.innerHTML = obrazky.map(o => {
+  // Aktualizovat seznam pro slider — musí být před renderem!
+  aktualizovatSeznamObrazku(obrazky);
+
+  grid.innerHTML = obrazky.map((o, index) => {
     const mohuSmazat = o.pridalId === aktualniUser?.uid;
     return `
       <div class="gallery-item"
-           onclick="window.__otevritModal('${o.url.replace(/'/g,"\\'")}', '${escHtml(o.popis)}', '${escHtml(o.pridalJmeno)}')">
+           onclick="window.__otevritSlider(${index})">
         <img src="${o.url}" alt="${escHtml(o.popis)}"
              onerror="this.parentElement.classList.add('gallery-item-broken')">
         <div class="gallery-item-overlay">
@@ -482,6 +493,8 @@ function vykresitGalerii(obrazky) {
 //  GLOBÁLNÍ FUNKCE (onclick v dynamickém HTML)
 // ════════════════════════════════════════════════════
 window.__otevritModal  = (url, popis, autor) => otevritModal(url, popis, autor);
+window.__otevritSlider    = (index) => otevritSlider(index);
+window.__otevritSliderUrl = (url)   => otevritSliderPodleUrl(url);
 window.__smazatGalerie = async (id) => {
   if (confirm("Smazat obrázek z galerie?")) await smazatZGalerie(id);
 };
