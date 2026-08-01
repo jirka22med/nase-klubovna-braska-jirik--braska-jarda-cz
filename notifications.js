@@ -1,3 +1,6 @@
+
+const __notifications_START = performance.now();
+
 // notifications.js — LCARS Messenger | Web Push notifikace
 import { db } from './firebase-config.js';
 import { doc, setDoc, getDoc } from
@@ -88,3 +91,7 @@ export function getNotifikaceStatus() {
   if (!("Notification" in window)) return "nepodporováno";
   return Notification.permission; // "granted" | "denied" | "default"
 }
+
+
+// ⏱️ LOG END 
+    console.log(`%c🚀 [notifications] Načteno za ${(performance.now() - __notifications_START).toFixed(2)} ms`, 'background: #000; color: #00ff00; font-weight: bold; padding: 2px;');
