@@ -274,5 +274,76 @@
 
   <!-- Moduly jako ES modules -->
   <script type="module" src="script.js"></script>
+
+
+  <script>                              
+(function() {
+const __INDEX_HTML_START = performance.now();
+ 
+    const WATCHDOG_KEY = 'watchdog_last_check';
+    const RELOAD_COOLDOWN = 10000; // 10s ochrana proti loop
+    
+    // 🛡️ POJISTKA #1: Cooldown check
+    const lastCheck = localStorage.getItem(WATCHDOG_KEY);
+    if (lastCheck && (Date.now() - parseInt(lastCheck)) < RELOAD_COOLDOWN) {
+        console.log("🐕 [Watchdog] Cooldown aktivní - přeskakuji check.");
+        return;
+    }
+    
+    // 1. ZLIKVIDOVAT DUCHY
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(regs => {
+            regs.forEach(reg => reg.unregister());
+        });
+    }
+    
+    // 2. KONTROLA ČERSTVOSTI
+    fetch('fleet-register.js?v=' + Date.now())
+        .then(r => r.text())
+        .then(text => {
+            // 🆕 NOVÝ REGEX – čte dynamické verzování formátu YYYY.M.D.BUILD
+            const match = text.match(/version:\s*`\$\{[^}]+\}\.\$\{[^}]+\}\.\$\{[^}]+\}\.\$\{[^}]+\}`/);
+            
+            // Místo porovnání stringu čteme buildNumber z localStorage
+            const serverBuild = (() => {
+                const buildMatch = text.match(/localStorage\.getItem\(key\)\s*\|\|\s*'(\d+)'/);
+                return buildMatch ? parseInt(buildMatch[1]) : null;
+            })();
+            
+            const browserVer = window.FLEET_CONFIG?.version || "0.0.0";
+            const browserBuild = window.FLEET_CONFIG?.buildNumber || 0;
+            
+            console.log(`🐕 [Watchdog] Browser verze: ${browserVer} | Build: ${browserBuild}`);
+            
+            if (serverBuild && browserBuild < serverBuild) {
+                console.warn("⚠️ [Watchdog] Zastaralá verze! Restart za 2s...");
+                
+                // 🛡️ POJISTKA #2: Timestamp před reload
+                localStorage.setItem(WATCHDOG_KEY, Date.now().toString());
+                
+                // 🛡️ POJISTKA #3: Vyčistit cache PŘED reload
+                if ('caches' in window) {
+                    caches.keys().then(names => {
+                        names.forEach(name => caches.delete(name));
+                    });
+                }
+                
+                // 🛡️ POJISTKA #4: Delay + hard reload
+                setTimeout(() => {
+                    window.location.href = window.location.href.split('?')[0] + '?refresh=' + Date.now();
+                }, 2000);
+            } else {
+                console.log("✅ [Watchdog] Verze OK.");
+                localStorage.removeItem(WATCHDOG_KEY); // Reset cooldown
+            }
+        })
+        .catch(err => {
+            console.log("🐕 [Watchdog] Offline nebo chyba:", err.message);
+        });
+
+    // ⏱️ LOG END 
+    console.log(`%c🚀 [INDEX-HTML] Načteno za ${(performance.now() - __INDEX_HTML_START).toFixed(2)} ms`, 'background: #000; color: #00ff00; font-weight: bold; padding: 2px;');
+})();
+</script>    
 </body>
 </html>
