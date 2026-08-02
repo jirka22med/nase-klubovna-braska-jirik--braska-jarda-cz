@@ -54,7 +54,7 @@ export async function odesilatObrazekZpravu(user, imageUrl) {
 }
 
 // Spustit realtime listener na zprávy
-export function sledovatZpravy(callback) {
+export function sledovatZpravy(callback, aktualniUserId = null) {
   const q = query(
     collection(db, "messages"),
     orderBy("timestamp", "asc"),
@@ -67,6 +67,32 @@ export function sledovatZpravy(callback) {
       zpravy.push({ id: docSnap.id, ...docSnap.data() });
     });
     callback(zpravy);
+
+    // ════════════════════════════════════════════════
+    //  NOTIFIKACE — přímá, bez FCM, bez backendu
+    //  Funguje když je tab na pozadí a přijde zpráva
+    // ════════════════════════════════════════════════
+    snapshot.docChanges().forEach((zmena) => {
+      if (zmena.type !== "added") return;
+      const z = zmena.doc.data();
+
+      if (
+        document.hidden &&                          // tab na pozadí
+        aktualniUserId &&                           // víme kdo jsme
+        z.senderId !== aktualniUserId &&            // zpráva od druhého
+        Notification.permission === "granted" &&   // povoleno
+        z.timestamp                                 // ignorovat offline cache
+      ) {
+        new Notification(`Klubovna — ${z.senderName || "Bráška"}`, {
+          body: z.typ === "image"
+            ? "📷 Poslal obrázek"
+            : (z.text || ""),
+          icon: "./icon-192.png",
+          tag:  "klubovna-zprava"  // přepíše předchozí, nekupí se
+        });
+      }
+    });
+
   }, (err) => {
     console.error("Chat listener chyba:", err);
   });
