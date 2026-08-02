@@ -34,6 +34,7 @@
 <!-- 5. GLOBÁLNÍ ÚPRAVY A RESPONZIVITA (Musí být úplně dole, aby přepsala rozměry!) -->
 <link rel="stylesheet" href="SCROLLBARY-GLOBALNE.css">
 <link rel="stylesheet" href="zavinac-media-qstion.css">
+  <link rel="stylesheet" href="diagnostika.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
@@ -159,6 +160,11 @@
 <button class="nav-btn" data-sekce="nicknames">
   <span class="nav-icon">✏️</span> PŘEZDÍVKY
 </button>
+
+<button class="nav-btn" data-sekce="diagnostika"
+        onclick="window.__otevritDiagnostiku()">
+  <span class="nav-icon">🔧</span> DIAGNOSTIKA
+</button>
           
         </div>
 
@@ -232,6 +238,17 @@
     <div id="nicknamesPanel"></div>
   </div>
 </section>
+
+
+<div class="diagnostika-overlay" id="diagnostikaOverlay">
+  <div class="diagnostika-box">
+    <div class="diagnostika-header">
+      <span class="diagnostika-title">⚙️ SYSTÉMOVÁ DIAGNOSTIKA — KLUBOVNA</span>
+      <button class="diagnostika-close" id="diagnostikaClose">✕ ZAVŘÍT</button>
+    </div>
+    <div class="diagnostika-panel" id="diagnostikaPanel"></div>
+  </div>
+</div>
         
       </main>
     </div><!-- end .app-body -->
@@ -278,7 +295,12 @@
   <!-- Moduly jako ES modules -->
   <script type="module" src="script.js"></script>
 
+<script type="module">
+  import { inicializovatDiagnostiku } from './diagnostika.js';
+  inicializovatDiagnostiku();
+</script>
 
+  
   <script>                              
 (function() {
 const __INDEX_HTML_START = performance.now();
