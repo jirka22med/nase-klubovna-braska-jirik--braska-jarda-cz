@@ -386,7 +386,7 @@ function nastavitSettingsButtony() {
 //  REALTIME LISTENERY
 // ════════════════════════════════════════════════════
 function spustitListenery() {
-  sledovatZpravy((zpravy) => vykresitZpravy(zpravy));
+  sledovatZpravy((zpravy) => vykresitZpravy(zpravy), aktualniUser.uid);
   sledovatGalerii((obrazky) => vykresitGalerii(obrazky));
 }
 
