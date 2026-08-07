@@ -75,9 +75,9 @@ const FLEET_CONFIG = {
         './presence.js',
         './settings.js',
         './gallery.js',
-        './gallery-slider.js'
-        './gallery-video.js'
-        './gallery-collapse.js'
+        './gallery-slider.js',
+        './gallery-video.js',
+        './gallery-collapse.js',
         
     ]
 };
