@@ -55,6 +55,8 @@ const FLEET_CONFIG = {
         './nastaveni.css',
         './SCROLLBARY-GLOBALNE.css',
         './zavinac-media-qstion.css',
+         './gallery-video.css ',
+          './gallery-collapse.css ',
 
         // --- NULTÉ POŘADÍ V POŘADÍ ---
         './fleet-register.js',
@@ -74,6 +76,9 @@ const FLEET_CONFIG = {
         './settings.js',
         './gallery.js',
         './gallery-slider.js'
+        './gallery-video.js'
+        './gallery-collapse.js'
+        
     ]
 };
 
