@@ -21,6 +21,7 @@ import {
   query,
   orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { aktualizovatSeznamObrazku, otevritSlider } from './gallery-slider.js';
 
 // ════════════════════════════════════════════════════════════════
 //  VÝCHOZÍ SEKCE — pevné ID, aby se při re-seedu neduplikovaly
@@ -90,7 +91,10 @@ function sledovatGaleriiProSekce() {
   const q = query(collection(db, "gallery"), orderBy("timestamp", "desc"));
   onSnapshot(q, (snap) => {
     obrazkySekce = [];
-    snap.forEach(d => obrazkySekce.push({ id: d.id, sekce: d.data().sekce || "spolecna" }));
+    snap.forEach(d => {
+      const data = d.data();
+      obrazkySekce.push({ ...data, id: d.id, sekce: data.sekce || "spolecna" });
+    });
     aplikovatSekceNaPolozky();
   }, (err) => console.error("Galerie (sekce) listener chyba:", err));
 }
@@ -153,15 +157,34 @@ function nazevSekce(id) {
 
 // ════════════════════════════════════════════════════════════════
 //  FILTROVÁNÍ PODLE AKTIVNÍ SEKCE
+//  + SYNCHRONIZACE SLIDERU — aby šipky ve fotomoldaru listovaly jen
+//  fotky z aktuálně zobrazené sekce, ne z celé galerie
 // ════════════════════════════════════════════════════════════════
 function filtrovatPodleAktivniSekce() {
   const grid = document.getElementById("galleryGrid");
   if (!grid) return;
 
-  grid.querySelectorAll(".gallery-item").forEach(el => {
+  const polozky   = grid.querySelectorAll(".gallery-item");
+  const viditelne = []; // data, co uvidí slider — jen aktivní sekce
+
+  polozky.forEach((el, index) => {
+    const data  = obrazkySekce[index];
     const shoda = aktivniSekce === VSE_ID || el.dataset.sekce === aktivniSekce;
+
     el.classList.toggle("gallery-item-hidden", !shoda);
+    if (!shoda || !data) return;
+
+    const filtrovanyIndex = viditelne.length;
+    viditelne.push(data);
+
+    // Video položky nechat na pokoji — ty řeší vlastní přehrávač
+    // v gallery-video.js, sem nepatří
+    if (data.typ !== "video") {
+      el.onclick = () => otevritSlider(filtrovanyIndex);
+    }
   });
+
+  aktualizovatSeznamObrazku(viditelne);
 }
 
 // ════════════════════════════════════════════════════════════════
