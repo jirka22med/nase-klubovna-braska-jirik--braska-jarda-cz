@@ -15,22 +15,29 @@ const __gallery_collapse_START = performance.now();
 // (modul se inicializuje sám, nic dalšího volat netřeba)
 
 function inicializovatSbalovaciPanely() {
-  const sekceGalerie = document.getElementById("gallerySekceTaby");
-  if (!sekceGalerie) return; // GALERIE sekce v HTML neexistuje — modul se neaktivuje  
+  const sekceGalerie = document.getElementById("sekce-galerie");
+  if (!sekceGalerie) return; // GALERIE sekce v HTML neexistuje — modul se neaktivuje
 
-  // ── Obrázková lišta — je v HTML hned od startu ──
-  const obrazkovaBar = document.querySelector(".gallery-add-bar");
-  if (obrazkovaBar) obalitSbalovacimPanelem(obrazkovaBar, "🖼️ PŘIDAT OBRÁZEK");
+  // Každá část zvlášť v try/catch — chyba na jedné liště nezastaví ostatní
+  bezpecne(() => {
+    const obrazkovaBar = document.querySelector(".gallery-add-bar");
+    if (obrazkovaBar) obalitSbalovacimPanelem(obrazkovaBar, "🖼️ PŘIDAT OBRÁZEK");
+  });
 
-  // ── Video lišta a lišta sekcí — injektují je jiné moduly asynchronně ──
-  napojitAzExistuje("galleryVideoAddBar", "🎬 PŘIDAT VIDEO", sekceGalerie);
-  napojitAzExistuje("gallerySekceTaby", "🗂️ SEKCE", sekceGalerie, /* autoZavrit */ true);
+  bezpecne(() => napojitAzExistuje("galleryVideoAddBar", "🎬 PŘIDAT VIDEO", sekceGalerie));
+  bezpecne(() => napojitAzExistuje("gallerySekceTaby", "🗂️ SEKCE", sekceGalerie, /* autoZavrit */ true));
 }
 
 document.addEventListener("DOMContentLoaded", inicializovatSbalovaciPanely);
 
+function bezpecne(fn) {
+  try { fn(); } catch (err) { console.error("gallery-collapse chyba:", err); }
+}
+
 // ════════════════════════════════════════════════════════════════
 //  POČKAT NA ELEMENT INJEKTOVANÝ JINÝM MODULEM (pokud tam ještě není)
+//  Dvojitá pojistka: MutationObserver (rychlé) + záložní polling
+//  (pro jistotu, kdyby element přišel mimo sledovaný uzel/pořadí)
 // ════════════════════════════════════════════════════════════════
 function napojitAzExistuje(id, popisek, sekceGalerie, autoZavrit = false) {
   const hned = document.getElementById(id);
@@ -44,9 +51,24 @@ function napojitAzExistuje(id, popisek, sekceGalerie, autoZavrit = false) {
     if (el) {
       obalitSbalovacimPanelem(el, popisek, autoZavrit);
       pozorovatel.disconnect();
+      clearInterval(zaloha);
     }
   });
-  pozorovatel.observe(sekceGalerie, { childList: true });
+  pozorovatel.observe(sekceGalerie, { childList: true, subtree: true });
+
+  let pokusy = 0;
+  const zaloha = setInterval(() => {
+    pokusy++;
+    const el = document.getElementById(id);
+    if (el) {
+      obalitSbalovacimPanelem(el, popisek, autoZavrit);
+      pozorovatel.disconnect();
+      clearInterval(zaloha);
+    } else if (pokusy > 40) { // ~10 s při 250 ms — pak už to vzdát
+      clearInterval(zaloha);
+      console.warn(`gallery-collapse: #${id} se nikdy neobjevil`);
+    }
+  }, 250);
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -72,9 +94,6 @@ function obalitSbalovacimPanelem(bar, popisek, autoZavritPoVyberu = false) {
     wrap.classList.toggle("gallery-collapse-open");
   });
 
-  // U sekcí: po kliku na konkrétní záložku (ne na "+") se panel sám zabalí.
-  // Poslouchá se přes delegaci na "bar", takže funguje i po tom, co
-  // gallery-sekce.js vnitřek přepíše přes innerHTML při každém renderu.
   if (autoZavritPoVyberu) {
     bar.addEventListener("click", (e) => {
       const zalozka = e.target.closest(".gallery-sekce-tab[data-tab]");
