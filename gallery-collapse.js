@@ -15,8 +15,8 @@ const __gallery_collapse_START = performance.now();
 // (modul se inicializuje sám, nic dalšího volat netřeba)
 
 function inicializovatSbalovaciPanely() {
-/*  const sekceGalerie = document.getElementById("gallerySekceTaby");
-  if (!sekceGalerie) return; // GALERIE sekce v HTML neexistuje — modul se neaktivuje */
+  const sekceGalerie = document.getElementById("gallerySekceTaby");
+  if (!sekceGalerie) return; // GALERIE sekce v HTML neexistuje — modul se neaktivuje  
 
   // ── Obrázková lišta — je v HTML hned od startu ──
   const obrazkovaBar = document.querySelector(".gallery-add-bar");
