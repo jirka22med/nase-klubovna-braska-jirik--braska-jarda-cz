@@ -368,8 +368,10 @@ function injektovatHTML() {
 // ════════════════════════════════════════════════════════════════
 function pridatHeaderButtony() {
   if (document.getElementById("headerKpBtns")) return;
-  const headerSub = document.querySelector(".header-sub");
-  if (!headerSub) return;
+
+  // Vložit MEZI header-title a header-user — ne pod subtitle!
+  const headerUser = document.getElementById("headerUserInfo");
+  if (!headerUser) return;
 
   const wrap = document.createElement("div");
   wrap.id = "headerKpBtns";
@@ -380,7 +382,8 @@ function pridatHeaderButtony() {
     <button class="hdr-quick-btn" title="Sdílené poznámky"
             onclick="window.__otevritPoznamky()">📝</button>
   `;
-  headerSub.insertAdjacentElement("afterend", wrap);
+  // Vložit těsně PŘED header-user
+  headerUser.parentElement.insertBefore(wrap, headerUser);
 }
 
 // ════════════════════════════════════════════════════════════════
