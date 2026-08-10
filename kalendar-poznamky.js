@@ -389,6 +389,7 @@ function pridatHeaderButtony() {
 function otevritKalendar() {
   document.getElementById("kalendarOverlay")?.classList.add("active");
   document.body.style.overflow = "hidden";
+  // Okamžitě vykreslit co máme — onSnapshot doplní aktualizace
   vykresliKalendar();
   vykresliUdalosti();
 }
@@ -401,6 +402,8 @@ function zavritKalendar() {
 function otevritPoznamky() {
   document.getElementById("poznamkyOverlay")?.classList.add("active");
   document.body.style.overflow = "hidden";
+  // Okamžitě vykreslit co máme — onSnapshot doplní aktualizace
+  vykresliPoznamky();
 }
 
 function zavritPoznamky() {
@@ -445,17 +448,23 @@ async function smazatUdalost(id) {
 function sledovatKalendar() {
   return (async () => {
     const { getApps }    = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
-    const { getFirestore, collection, query, orderBy, onSnapshot } = await import(
+    const { getFirestore, collection, onSnapshot } = await import(
       "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-    const q = query(collection(getFirestore(getApps()[0]), "kalendar"), orderBy("datum","asc"));
-    unsubKal = onSnapshot(q, snap => {
-      vsechnyUdalosti = [];
-      snap.forEach(d => vsechnyUdalosti.push({ id: d.id, ...d.data() }));
-      if (document.getElementById("kalendarOverlay")?.classList.contains("active")) {
-        vykresliKalendar();
-        vykresliUdalosti();
-      }
-    });
+    // BEZ orderBy — žádný index Firestore nepotřebuje, řadíme client-side
+    unsubKal = onSnapshot(
+      collection(getFirestore(getApps()[0]), "kalendar"),
+      snap => {
+        vsechnyUdalosti = [];
+        snap.forEach(d => vsechnyUdalosti.push({ id: d.id, ...d.data() }));
+        // Seřadit dle data client-side
+        vsechnyUdalosti.sort((a,b) => (a.datum||"").localeCompare(b.datum||""));
+        if (document.getElementById("kalendarOverlay")?.classList.contains("active")) {
+          vykresliKalendar();
+          vykresliUdalosti();
+        }
+      },
+      err => console.warn("📅 [kalendar] onSnapshot chyba:", err.message)
+    );
   })();
 }
 
@@ -501,16 +510,26 @@ async function editovatPoznamku(id, novyText) {
 function sledovatPoznamky() {
   return (async () => {
     const { getApps }    = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
-    const { getFirestore, collection, query, orderBy, onSnapshot } = await import(
+    const { getFirestore, collection, onSnapshot } = await import(
       "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-    const q = query(collection(getFirestore(getApps()[0]), "poznamky"), orderBy("timestamp","desc"));
-    unsubPoz = onSnapshot(q, snap => {
-      vsechnyPoznamky = [];
-      snap.forEach(d => vsechnyPoznamky.push({ id: d.id, ...d.data() }));
-      if (document.getElementById("poznamkyOverlay")?.classList.contains("active")) {
-        vykresliPoznamky();
-      }
-    });
+    // BEZ orderBy — žádný index Firestore nepotřebuje, řadíme client-side
+    unsubPoz = onSnapshot(
+      collection(getFirestore(getApps()[0]), "poznamky"),
+      snap => {
+        vsechnyPoznamky = [];
+        snap.forEach(d => vsechnyPoznamky.push({ id: d.id, ...d.data() }));
+        // Seřadit dle timestamp client-side (nejnovější nahoře)
+        vsechnyPoznamky.sort((a,b) => {
+          const ta = a.timestamp?.toMillis?.() ?? 0;
+          const tb = b.timestamp?.toMillis?.() ?? 0;
+          return tb - ta;
+        });
+        if (document.getElementById("poznamkyOverlay")?.classList.contains("active")) {
+          vykresliPoznamky();
+        }
+      },
+      err => console.warn("📝 [poznamky] onSnapshot chyba:", err.message)
+    );
   })();
 }
 
