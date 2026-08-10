@@ -318,7 +318,16 @@ function injektovatHTML() {
             <div class="kal-pridat">
               <div class="kal-pridat-title">➕ PŘIDAT UDÁLOST</div>
               <div class="kal-form-row">
-                <input type="date" class="kal-input" id="kalDatum">
+                <div style="display:flex;flex-direction:column;gap:3px;flex:1">
+                  <div style="font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:2px;color:var(--lcars-secondary)">OD</div>
+                  <input type="date" class="kal-input" id="kalDatum">
+                </div>
+                <div style="display:flex;flex-direction:column;gap:3px;flex:1">
+                  <div style="font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:2px;color:var(--lcars-secondary)">DO (volitelné)</div>
+                  <input type="date" class="kal-input" id="kalDatumDo">
+                </div>
+              </div>
+              <div class="kal-form-row">
                 <input type="text" class="kal-input" id="kalNazev"
                        placeholder="Název události...">
               </div>
