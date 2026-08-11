@@ -428,23 +428,25 @@ function zavritPoznamky() {
 // ════════════════════════════════════════════════════════════════
 async function pridatUdalost() {
   if (!aktUser) return;
-  const datum = document.getElementById("kalDatum")?.value;
-  const nazev = document.getElementById("kalNazev")?.value.trim();
-  const popis = document.getElementById("kalPopis")?.value.trim();
-  if (!datum || !nazev) { alert("Zadej datum a název!"); return; }
+  const datum    = document.getElementById("kalDatum")?.value;
+  const datumDo  = document.getElementById("kalDatumDo")?.value || "";
+  const nazev    = document.getElementById("kalNazev")?.value.trim();
+  const popis    = document.getElementById("kalPopis")?.value.trim();
+  if (!datum || !nazev) { alert("Zadej datum OD a název!"); return; }
 
   try {
     const { getApps }    = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
     const { getFirestore, collection, addDoc, serverTimestamp } = await import(
       "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
     await addDoc(collection(getFirestore(getApps()[0]), "kalendar"), {
-      datum, nazev, popis: popis || "",
+      datum, datumDo, nazev, popis: popis || "",
       pridalId: aktUser.uid, pridalJmeno: aktUser.displayName,
       timestamp: serverTimestamp()
     });
-    document.getElementById("kalNazev").value = "";
-    document.getElementById("kalPopis").value = "";
-    document.getElementById("kalDatum").value = "";
+    document.getElementById("kalNazev").value   = "";
+    document.getElementById("kalPopis").value   = "";
+    document.getElementById("kalDatum").value   = "";
+    document.getElementById("kalDatumDo").value = "";
   } catch (e) { alert("Chyba: " + e.message); }
 }
 
