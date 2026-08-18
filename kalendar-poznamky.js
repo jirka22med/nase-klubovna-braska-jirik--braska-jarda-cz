@@ -25,18 +25,28 @@ function injektovatCSS() {
   s.id = "kp-style";
   s.textContent = `
 
-    /* ── TLAČÍTKA V HEADERU ── */
+    /* ── TLAČÍTKA V HEADERU — vedle avatara ── */
     .header-quick-btns {
-      display: flex; gap: 5px; margin-top: 3px;
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      margin-left: 8px;
     }
     .hdr-quick-btn {
       background: rgba(0,0,0,0.35);
       border: 1px solid rgba(255,153,0,0.5);
       color: var(--lcars-primary, #FF9900);
-      font-size: 14px; padding: 3px 8px;
-      border-radius: 4px; cursor: pointer;
+      font-size: 14px;
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      cursor: pointer;
       transition: background 0.15s;
-      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      flex-shrink: 0;
     }
     .hdr-quick-btn:hover { background: rgba(255,153,0,0.2); }
 
@@ -368,8 +378,10 @@ function injektovatHTML() {
 // ════════════════════════════════════════════════════════════════
 function pridatHeaderButtony() {
   if (document.getElementById("headerKpBtns")) return;
-  const headerSub = document.querySelector(".header-sub");
-  if (!headerSub) return;
+
+  // Vložit PŘED headerUserInfo — nalevo od avatara
+  const headerUser = document.getElementById("headerUserInfo");
+  if (!headerUser) return;
 
   const wrap = document.createElement("div");
   wrap.id = "headerKpBtns";
@@ -380,7 +392,8 @@ function pridatHeaderButtony() {
     <button class="hdr-quick-btn" title="Sdílené poznámky"
             onclick="window.__otevritPoznamky()">📝</button>
   `;
-  headerSub.insertAdjacentElement("afterend", wrap);
+  // Vložit jako sourozenec PŘED header-user
+  headerUser.parentElement.insertBefore(wrap, headerUser);
 }
 
 // ════════════════════════════════════════════════════════════════
