@@ -318,16 +318,7 @@ function injektovatHTML() {
             <div class="kal-pridat">
               <div class="kal-pridat-title">➕ PŘIDAT UDÁLOST</div>
               <div class="kal-form-row">
-                <div style="display:flex;flex-direction:column;gap:3px;flex:1">
-                  <div style="font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:2px;color:var(--lcars-secondary)">OD</div>
-                  <input type="date" class="kal-input" id="kalDatum">
-                </div>
-                <div style="display:flex;flex-direction:column;gap:3px;flex:1">
-                  <div style="font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:2px;color:var(--lcars-secondary)">DO (volitelné)</div>
-                  <input type="date" class="kal-input" id="kalDatumDo">
-                </div>
-              </div>
-              <div class="kal-form-row">
+                <input type="date" class="kal-input" id="kalDatum">
                 <input type="text" class="kal-input" id="kalNazev"
                        placeholder="Název události...">
               </div>
@@ -377,10 +368,8 @@ function injektovatHTML() {
 // ════════════════════════════════════════════════════════════════
 function pridatHeaderButtony() {
   if (document.getElementById("headerKpBtns")) return;
-
-  // Vložit MEZI header-title a header-user — ne pod subtitle!
-  const headerUser = document.getElementById("headerUserInfo");
-  if (!headerUser) return;
+  const headerSub = document.querySelector(".header-sub");
+  if (!headerSub) return;
 
   const wrap = document.createElement("div");
   wrap.id = "headerKpBtns";
@@ -391,8 +380,7 @@ function pridatHeaderButtony() {
     <button class="hdr-quick-btn" title="Sdílené poznámky"
             onclick="window.__otevritPoznamky()">📝</button>
   `;
-  // Vložit těsně PŘED header-user
-  headerUser.parentElement.insertBefore(wrap, headerUser);
+  headerSub.insertAdjacentElement("afterend", wrap);
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -428,25 +416,23 @@ function zavritPoznamky() {
 // ════════════════════════════════════════════════════════════════
 async function pridatUdalost() {
   if (!aktUser) return;
-  const datum    = document.getElementById("kalDatum")?.value;
-  const datumDo  = document.getElementById("kalDatumDo")?.value || "";
-  const nazev    = document.getElementById("kalNazev")?.value.trim();
-  const popis    = document.getElementById("kalPopis")?.value.trim();
-  if (!datum || !nazev) { alert("Zadej datum OD a název!"); return; }
+  const datum = document.getElementById("kalDatum")?.value;
+  const nazev = document.getElementById("kalNazev")?.value.trim();
+  const popis = document.getElementById("kalPopis")?.value.trim();
+  if (!datum || !nazev) { alert("Zadej datum a název!"); return; }
 
   try {
     const { getApps }    = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
     const { getFirestore, collection, addDoc, serverTimestamp } = await import(
       "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
     await addDoc(collection(getFirestore(getApps()[0]), "kalendar"), {
-      datum, datumDo, nazev, popis: popis || "",
+      datum, nazev, popis: popis || "",
       pridalId: aktUser.uid, pridalJmeno: aktUser.displayName,
       timestamp: serverTimestamp()
     });
-    document.getElementById("kalNazev").value   = "";
-    document.getElementById("kalPopis").value   = "";
-    document.getElementById("kalDatum").value   = "";
-    document.getElementById("kalDatumDo").value = "";
+    document.getElementById("kalNazev").value = "";
+    document.getElementById("kalPopis").value = "";
+    document.getElementById("kalDatum").value = "";
   } catch (e) { alert("Chyba: " + e.message); }
 }
 
@@ -555,37 +541,43 @@ const MESICE = ["Leden","Únor","Březen","Duben","Máj","Červen",
 const DNY    = ["Po","Út","St","Čt","Pá","So","Ne"];
 
 function vykresliKalendar() {
-  const grid = document.getElementById("kalGrid");
+  const grid  = document.getElementById("kalGrid");
   const label = document.getElementById("kalMesicRok");
   if (!grid || !label) return;
 
   label.textContent = `${MESICE[aktMesic]} ${aktRok}`;
 
-  const dnes    = new Date();
-  const prvniDen = new Date(aktRok, aktMesic, 1);
+  const dnes       = new Date();
+  const prvniDen   = new Date(aktRok, aktMesic, 1);
   const posledniDen = new Date(aktRok, aktMesic + 1, 0);
-  // Pondělí = 0
+
   let zacatek = prvniDen.getDay() - 1;
   if (zacatek < 0) zacatek = 6;
 
-  // Udalosti v tomto měsíci
-  const prefixDatumu = `${aktRok}-${String(aktMesic+1).padStart(2,"0")}`;
-  const udalostitento = vsechnyUdalosti.filter(u => u.datum?.startsWith(prefixDatumu));
+  // Helper — je datum v rozsahu události?
+  const denVRozsahu = (datumStr, u) => {
+    if (!u.datum) return false;
+    const d  = datumStr;
+    const od = u.datum;
+    const do_ = u.datumDo || u.datum; // bez datumDo = jednodení
+    return d >= od && d <= do_;
+  };
 
-  let html = DNY.map(d =>
-    `<div class="kal-den-nazev">${d}</div>`
-  ).join("");
+  let html = DNY.map(d => `<div class="kal-den-nazev">${d}</div>`).join("");
 
-  // Prázdné buňky před prvním dnem
   for (let i = 0; i < zacatek; i++) {
     html += `<div class="kal-den prazdny"></div>`;
   }
 
   for (let den = 1; den <= posledniDen.getDate(); den++) {
-    const datumStr  = `${aktRok}-${String(aktMesic+1).padStart(2,"0")}-${String(den).padStart(2,"0")}`;
-    const jeToday   = den === dnes.getDate() && aktMesic === dnes.getMonth() && aktRok === dnes.getFullYear();
-    const udalosti  = udalostitento.filter(u => u.datum === datumStr);
-    const maDots    = udalosti.length > 0;
+    const datumStr = `${aktRok}-${String(aktMesic+1).padStart(2,"0")}-${String(den).padStart(2,"0")}`;
+    const jeToday  = den === dnes.getDate() &&
+                     aktMesic === dnes.getMonth() &&
+                     aktRok   === dnes.getFullYear();
+
+    // Události které zahrnují tento den (i rozsah od-do)
+    const udalosti = vsechnyUdalosti.filter(u => denVRozsahu(datumStr, u));
+    const maDots   = udalosti.length > 0;
 
     html += `
       <div class="kal-den ${jeToday ? "dnes" : ""} ${maDots ? "ma-udalosti" : ""}"
@@ -599,7 +591,7 @@ function vykresliKalendar() {
 
   grid.innerHTML = html;
 
-  // Předvyplnit dnešní datum
+  // Předvyplnit dnešní datum do pole OD
   const datumInput = document.getElementById("kalDatum");
   if (datumInput && !datumInput.value) {
     datumInput.value = dnes.toISOString().split("T")[0];
@@ -610,10 +602,18 @@ function vykresliUdalosti() {
   const list = document.getElementById("kalUdalosList");
   if (!list) return;
 
-  // Zobrazit události v tomto měsíci, seřazené dle data
-  const prefixDatumu = `${aktRok}-${String(aktMesic+1).padStart(2,"0")}`;
+  // Začátek a konec aktuálního měsíce jako string
+  const mesicOd = `${aktRok}-${String(aktMesic+1).padStart(2,"0")}-01`;
+  const mesicDo = `${aktRok}-${String(aktMesic+1).padStart(2,"0")}-31`;
+
+  // Zobrazit události které ZASAHUJÍ do tohoto měsíce
   const udalosti = vsechnyUdalosti
-    .filter(u => u.datum?.startsWith(prefixDatumu))
+    .filter(u => {
+      if (!u.datum) return false;
+      const do_ = u.datumDo || u.datum;
+      // Událost zasahuje do měsíce pokud: začíná před koncem měsíce A končí po začátku měsíce
+      return u.datum <= mesicDo && do_ >= mesicOd;
+    })
     .sort((a, b) => a.datum?.localeCompare(b.datum));
 
   if (!udalosti.length) {
@@ -623,12 +623,28 @@ function vykresliUdalosti() {
 
   list.innerHTML = udalosti.map(u => {
     const jeMoje = u.pridalId === aktUser?.uid;
-    const datum  = u.datum ? new Date(u.datum + "T00:00:00").toLocaleDateString("cs-CZ",
-      { weekday:"short", day:"numeric", month:"long" }) : "";
+
+    // Formátovat datum OD
+    const datumOd = u.datum
+      ? new Date(u.datum + "T00:00:00").toLocaleDateString("cs-CZ",
+          { weekday:"short", day:"numeric", month:"long" })
+      : "";
+
+    // Formátovat datum DO (pokud existuje a je jiné než OD)
+    const datumDo = u.datumDo && u.datumDo !== u.datum
+      ? new Date(u.datumDo + "T00:00:00").toLocaleDateString("cs-CZ",
+          { weekday:"short", day:"numeric", month:"long" })
+      : "";
+
+    // Rozsah: "Po 11. srpna → Pá 15. srpna" nebo jen "Po 11. srpna"
+    const datumText = datumDo
+      ? `${datumOd} → ${datumDo}`
+      : datumOd;
+
     return `
       <div class="kal-udalost-item ${jeMoje ? "" : "cizi"}">
         <div style="flex:1">
-          <div class="kal-ud-datum">${datum}</div>
+          <div class="kal-ud-datum">${datumText}</div>
           <div class="kal-ud-nazev">${escHtml(u.nazev)}</div>
           ${u.popis ? `<div class="kal-ud-popis">${escHtml(u.popis)}</div>` : ""}
           <div class="kal-ud-autor">— ${escHtml(u.pridalJmeno)}</div>
