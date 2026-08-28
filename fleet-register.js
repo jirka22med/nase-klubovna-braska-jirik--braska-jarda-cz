@@ -78,6 +78,7 @@ const FLEET_CONFIG = {
         './gallery-slider.js',
         './gallery-video.js',
         './gallery-collapse.js',
+        './mazani-zprav.js',
         
     ]
 };
