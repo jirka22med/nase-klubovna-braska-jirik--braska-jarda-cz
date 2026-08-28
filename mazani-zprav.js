@@ -27,6 +27,7 @@ function injektovatCSS() {
       align-items: center;
       justify-content: center;
       padding: 0; flex-shrink: 0;
+      margin-top: 20px;
     }
     #mzBtn.visible { display: flex; }
     #mzBtn:hover   { background: rgba(204,0,0,0.2); }
