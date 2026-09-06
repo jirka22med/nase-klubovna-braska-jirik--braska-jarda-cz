@@ -33,7 +33,7 @@ const POVOLENI_UZIVATELE = [
   "jirkamed66@gmail.com",
  
   "jakesjardajak@gmail.com",   // ← ⚠️ DOPLNIT!
-   "jirmedokura@gmail.com",
+  
 ];
 
 const provider = new GoogleAuthProvider();
