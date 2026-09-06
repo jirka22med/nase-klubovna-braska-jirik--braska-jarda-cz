@@ -1,8 +1,5 @@
-const __auth_START = performance.now();
-
-
 // auth.js — LCARS Messenger | Google přihlášení + whitelist
-// OPRAVA v2: signInWithPopup místo Redirect — spolehlivější na GitHub Pages! 
+// OPRAVA v2: signInWithPopup místo Redirect — spolehlivější na GitHub Pages!
 
 import { auth, db } from './firebase-config.js';
 import {
@@ -31,9 +28,7 @@ setPersistence(auth, browserLocalPersistence).catch((err) => {
 // ╚══════════════════════════════════════════════════╝
 const POVOLENI_UZIVATELE = [
   "jirkamed66@gmail.com",
- 
-  "jakesjardajak@gmail.com"  // ← ⚠️ DOPLNIT!
-  
+  "jakesjardajak@gmail.com"    // ← ⚠️ DOPLNIT!
 ];
 
 const provider = new GoogleAuthProvider();
@@ -78,7 +73,3 @@ export function sledovatPrihlaseni(callback) {
     callback(user);
   });
 }
-
-
-// ⏱️ LOG END 
-    console.log(`%c🚀 [auth] Načteno za ${(performance.now() - __auth_START).toFixed(2)} ms`, 'background: #000; color: #00ff00; font-weight: bold; padding: 2px;');
