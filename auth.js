@@ -31,6 +31,7 @@ setPersistence(auth, browserLocalPersistence).catch((err) => {
 // ╚══════════════════════════════════════════════════╝
 const POVOLENI_UZIVATELE = [
   "jirkamed66@gmail.com",
+  "jirmedokura@post.cz",
   "jakesjardajak@gmail.com"    // ← ⚠️ DOPLNIT!
 ];
 
