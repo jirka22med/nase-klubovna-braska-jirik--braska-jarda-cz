@@ -157,6 +157,17 @@ function injektovatCSS() {
     .kal-form-row {
       display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;
     }
+
+    /* ── NOVÉ — popisky OD / DO nad date inputy ── */
+    .kal-form-group {
+      flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 120px;
+    }
+    .kal-form-label {
+      font-family: 'Orbitron', sans-serif; font-size: 8px;
+      letter-spacing: 2px; color: rgba(255,153,0,0.5);
+      user-select: none;
+    }
+
     .kal-input {
       flex: 1; min-width: 120px;
       background: var(--lcars-panel, #181818);
@@ -328,7 +339,16 @@ function injektovatHTML() {
             <div class="kal-pridat">
               <div class="kal-pridat-title">➕ PŘIDAT UDÁLOST</div>
               <div class="kal-form-row">
-                <input type="date" class="kal-input" id="kalDatum">
+                <div class="kal-form-group">
+                  <span class="kal-form-label">DATUM OD</span>
+                  <input type="date" class="kal-input" id="kalDatum">
+                </div>
+                <div class="kal-form-group">
+                  <span class="kal-form-label">DATUM DO (VOLITELN.)</span>
+                  <input type="date" class="kal-input" id="kalDatumDo">
+                </div>
+              </div>
+              <div class="kal-form-row">
                 <input type="text" class="kal-input" id="kalNazev"
                        placeholder="Název události...">
               </div>
@@ -429,23 +449,32 @@ function zavritPoznamky() {
 // ════════════════════════════════════════════════════════════════
 async function pridatUdalost() {
   if (!aktUser) return;
-  const datum = document.getElementById("kalDatum")?.value;
-  const nazev = document.getElementById("kalNazev")?.value.trim();
-  const popis = document.getElementById("kalPopis")?.value.trim();
+  const datum   = document.getElementById("kalDatum")?.value;
+  const datumDo = document.getElementById("kalDatumDo")?.value || "";  // ✅ OPRAVA: čteme pole DO
+  const nazev   = document.getElementById("kalNazev")?.value.trim();
+  const popis   = document.getElementById("kalPopis")?.value.trim();
   if (!datum || !nazev) { alert("Zadej datum a název!"); return; }
+  // ✅ OPRAVA: validace — datum DO nesmí být před datumem OD
+  if (datumDo && datumDo < datum) {
+    alert("Datum DO nesmí být před datumem OD!");
+    return;
+  }
 
   try {
     const { getApps }    = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
     const { getFirestore, collection, addDoc, serverTimestamp } = await import(
       "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
     await addDoc(collection(getFirestore(getApps()[0]), "kalendar"), {
-      datum, nazev, popis: popis || "",
+      datum,
+      datumDo: datumDo || "",  // ✅ OPRAVA: ukládáme datumDo do Firebase
+      nazev, popis: popis || "",
       pridalId: aktUser.uid, pridalJmeno: aktUser.displayName,
       timestamp: serverTimestamp()
     });
-    document.getElementById("kalNazev").value = "";
-    document.getElementById("kalPopis").value = "";
-    document.getElementById("kalDatum").value = "";
+    document.getElementById("kalNazev").value  = "";
+    document.getElementById("kalPopis").value  = "";
+    document.getElementById("kalDatum").value  = "";
+    document.getElementById("kalDatumDo").value = "";  // ✅ OPRAVA: resetujeme pole DO
   } catch (e) { alert("Chyba: " + e.message); }
 }
 
