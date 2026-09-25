@@ -124,7 +124,7 @@ console.log(
 );
 
 console.log(
-    `%c   Projekt běží na: https://jirka22med.github.io/stary-skolni-projekt-html/ ✅`,
+    `%c   Projekt běží na: https://jirka22med.github.io/nase-klubovna-braska-jirik--braska-jarda-cz/ ✅`,
     'color: #00FF00; font-size: 12px; font-weight: bold;'
 );
 
