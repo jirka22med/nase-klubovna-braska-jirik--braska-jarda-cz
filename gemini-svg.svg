@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Hlavní černé pozadí se zaoblenými rohy a oranžovým obrysem -->
+  <rect width="64" height="64" rx="12" fill="#0d0d0d" stroke="#d84315" stroke-width="2"/>
+  
+  <!-- Centrální monogram Jiřík & Jarda -->
+  <text x="32" y="35" font-family="'Courier New', monospace" font-weight="900" font-size="22" fill="#d84315" text-anchor="middle" dominant-baseline="central">J&amp;J</text>
+  
+  <!-- Spodní horizontální linie (základna/kolejnice) -->
+  <path d="M 16 50 L 48 50" stroke="#d84315" stroke-width="4" stroke-linecap="round"/>
+</svg>
